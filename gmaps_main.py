@@ -5,8 +5,6 @@ import unicodedata
 from datetime import date
 
 
-# todo Interfejs, podglad pliku excel z wyniku, eksport wyniku do pliku,
-# todo Dodatkowa opcja wyszukiwanie np dzialu zakupu na linkedin
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
@@ -28,6 +26,22 @@ def wczytaj_historie(path: str) -> set:
 def dopisz_do_historii(path: str, nazwy: list):
     with open(path, 'a', encoding='utf-8') as f:
         for nazwa in nazwy:
+            f.write(nazwa + '\n')
+
+
+def wyczysc_historie(path: str):
+    """Kasuje całą zawartość pliku historii."""
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write('')
+
+
+def usun_z_historii(path: str, nazwy_do_usuniecia: list):
+    """Usuwa wybrane firmy z historii, pozostałe zostawia."""
+    historia = wczytaj_historie(path)
+    do_usuniecia = set(nazwy_do_usuniecia)
+    pozostale = [n for n in historia if n not in do_usuniecia]
+    with open(path, 'w', encoding='utf-8') as f:
+        for nazwa in pozostale:
             f.write(nazwa + '\n')
 
 
@@ -75,6 +89,29 @@ def zapisz_excel(firmy: list, path: str):
     for col_idx, col in enumerate(ws.iter_cols(), start=1):
         max_len = max((len(str(cell.value or '')) for cell in col), default=10)
         ws.column_dimensions[get_column_letter(col_idx)].width = min(max_len + 4, 60)
+    wb.save(path)
+
+
+def zapisz_excel_linkedin(kontakty: list, path: str):
+    columns = ['Imię i Nazwisko', 'Stanowisko', 'Firma', 'Lokalizacja', 'LinkedIn URL']
+    rows = [
+        [
+            k.get('imie_nazwisko', ''),
+            k.get('stanowisko', ''),
+            k.get('firma', ''),
+            k.get('lokalizacja', ''),
+            k.get('linkedin_url', ''),
+        ]
+        for k in kontakty
+    ]
+    df = pd.DataFrame(rows, columns=columns)
+    df.to_excel(path, index=False)
+
+    wb = load_workbook(path)
+    ws = wb.active
+    for col_idx, col in enumerate(ws.iter_cols(), start=1):
+        max_len = max((len(str(cell.value or '')) for cell in col), default=10)
+        ws.column_dimensions[get_column_letter(col_idx)].width = min(max_len + 4, 80)
     wb.save(path)
 
 
