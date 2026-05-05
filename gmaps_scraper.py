@@ -2,6 +2,13 @@ from playwright.sync_api import sync_playwright
 from urllib.parse import urlparse, parse_qs
 import time
 import re
+import sys
+
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
 
 
 def _unwrap_google_url(href: str) -> str:
@@ -47,7 +54,10 @@ def scrape_maps(query: str, limit: int = 20, already_collected: set = None) -> l
         try:
             page.wait_for_selector('[role="feed"]', timeout=15000)
         except Exception:
-            print("[WARN] Nie znaleziono panelu wyników (role=feed). Sprawdź przeglądarkę.")
+            try:
+                print("[WARN] Nie znaleziono panelu wynikow. Sprawdz przegladarke.")
+            except UnicodeEncodeError:
+                pass
             browser.close()
             return results
 
@@ -198,7 +208,10 @@ def scrape_maps(query: str, limit: int = 20, already_collected: set = None) -> l
                 }
                 results.append(firma)
                 collected_names.add(nazwa)
-                print(f"  [Maps] {len(results)}/{limit} - {nazwa} | adres={bool(adres)} tel={bool(telefon)} www={bool(www)} email={bool(email_maps)}".encode('utf-8', errors='replace').decode('utf-8'))
+                try:
+                    print(f"  [Maps] {len(results)}/{limit} - {nazwa} | adres={bool(adres)} tel={bool(telefon)} www={bool(www)} email={bool(email_maps)}")
+                except UnicodeEncodeError:
+                    pass
 
             if len(results) < limit:
                 # Scroll down in the feed
