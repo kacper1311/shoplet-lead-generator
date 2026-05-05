@@ -99,13 +99,25 @@ echo.
 :: ── KROK 4: Start ───────────────────────────────────────────────────────────
 echo  [4/4] Uruchamianie aplikacji...
 echo.
+title Shoplet Lead Generator — Dziala
+
+:: Uruchom Streamlit w tle
+start /B python -m streamlit run app.py --browser.gatherUsageStats false --server.headless true >nul 2>&1
+
+:: Poczekaj az Streamlit sie uruchomi
+echo  Uruchamianie, prosze czekac...
+timeout /t 5 /nobreak >nul
+
+:: Otworz przegladarke automatycznie
+start "" "http://localhost:8501"
+
+echo.
 echo  ============================================
-echo   Program gotowy! Otwieram przegladarke...
-echo   Adres: http://localhost:8501
+echo   Program dziala!
+echo   Jesli przegladarka sie nie otworzyla,
+echo   wejdz recznie na: http://localhost:8501
 echo  ============================================
 echo.
 echo  Aby zatrzymac program: zamknij to okno.
 echo.
-title Shoplet Lead Generator — Dziala
-python -m streamlit run app.py --browser.gatherUsageStats false --server.headless false
-pause
+pause >nul
