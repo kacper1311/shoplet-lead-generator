@@ -1,7 +1,10 @@
 @echo off
+chcp 65001 >nul
 cd /d "%~dp0"
 title Shoplet Lead Generator — Przygotowanie
 color 0A
+set PYTHONIOENCODING=utf-8
+set PYTHONUTF8=1
 
 echo.
 echo  ============================================

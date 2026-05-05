@@ -198,7 +198,7 @@ def scrape_maps(query: str, limit: int = 20, already_collected: set = None) -> l
                 }
                 results.append(firma)
                 collected_names.add(nazwa)
-                print(f"  [Maps] {len(results)}/{limit} — {nazwa} | adres={bool(adres)} tel={bool(telefon)} www={bool(www)} email={bool(email_maps)}")
+                print(f"  [Maps] {len(results)}/{limit} - {nazwa} | adres={bool(adres)} tel={bool(telefon)} www={bool(www)} email={bool(email_maps)}".encode('utf-8', errors='replace').decode('utf-8'))
 
             if len(results) < limit:
                 # Scroll down in the feed
