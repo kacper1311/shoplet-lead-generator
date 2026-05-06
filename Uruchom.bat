@@ -1,7 +1,7 @@
 @echo off
-chcp 65001 >nul
+chcp 65001 >nul 2>&1
 cd /d "%~dp0"
-title Shoplet Lead Generator — Przygotowanie
+title Shoplet Lead Generator
 color 0A
 set PYTHONIOENCODING=utf-8
 set PYTHONUTF8=1
@@ -14,9 +14,9 @@ echo.
 echo  Trwa przygotowanie programu, prosze czekac...
 echo.
 
-:: ── KROK 1: Python ──────────────────────────────────────────────────────────
+REM -- KROK 1: Python ----------------------------------------------------------
 python --version >nul 2>&1
-if %errorlevel% equ 0 goto :python_ok
+if %errorlevel% equ 0 goto python_ok
 
 echo  [1/4] Instalowanie Python 3.13...
 echo        (moze to zajac 2-3 minuty)
@@ -27,15 +27,14 @@ if %errorlevel% equ 0 (
     echo        Pobieranie Python przez Windows Package Manager...
     winget install Python.Python.3.13 --silent --accept-package-agreements --accept-source-agreements
     echo        Python zainstalowany.
-    goto :refresh_path
+    goto refresh_path
 )
 
 echo        Pobieranie instalatora Python z python.org...
-powershell -Command "Write-Host '        Laczenie z serwerem...'; Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.13.3/python-3.13.3-amd64.exe' -OutFile '%TEMP%\python_setup.exe'" 2>nul
+powershell -Command "Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.13.3/python-3.13.3-amd64.exe' -OutFile '%TEMP%\python_setup.exe'"
 if %errorlevel% neq 0 (
     echo.
-    echo  BLAD: Nie mozna pobrac Pythona.
-    echo  Sprawdz polaczenie z internetem i sprobuj ponownie.
+    echo  BLAD: Nie mozna pobrac Pythona. Sprawdz polaczenie z internetem.
     echo.
     pause
     exit /b 1
@@ -65,9 +64,9 @@ if %errorlevel% neq 0 (
 echo  [1/4] Python .................... OK
 echo.
 
-:: ── KROK 2: pip + zaleznosci ────────────────────────────────────────────────
+REM -- KROK 2: pip + zaleznosci ------------------------------------------------
 echo  [2/4] Instalowanie wymaganych skladnikow...
-echo        (streamlit, pandas, playwright, ddgs...)
+echo        streamlit, pandas, playwright, ddgs...
 echo        Moze to zajac 1-2 minuty przy pierwszym uruchomieniu.
 echo.
 python -m pip install --upgrade pip -q 2>nul
@@ -83,10 +82,10 @@ if %errorlevel% neq 0 (
 echo  [2/4] Skladniki ................. OK
 echo.
 
-:: ── KROK 3: Chromium ────────────────────────────────────────────────────────
+REM -- KROK 3: Chromium --------------------------------------------------------
 echo  [3/4] Instalowanie przegladarki Chromium...
-echo        (wymagana do przeszukiwania Google Maps)
-echo        Przy pierwszym uruchomieniu: pobieranie ~130 MB, prosze czekac...
+echo        Wymagana do przeszukiwania Google Maps.
+echo        Pierwsze uruchomienie: pobieranie ok. 130 MB, prosze czekac...
 echo.
 python -m playwright install chromium
 if %errorlevel% neq 0 (
@@ -99,24 +98,21 @@ if %errorlevel% neq 0 (
 echo  [3/4] Chromium .................. OK
 echo.
 
-:: ── KROK 4: Start ───────────────────────────────────────────────────────────
+REM -- KROK 4: Start aplikacji -------------------------------------------------
 echo  [4/4] Uruchamianie aplikacji...
 echo.
-title Shoplet Lead Generator — Dziala
+title Shoplet Lead Generator - Dziala
 
-:: Uruchom Streamlit w tle
 start /B python -m streamlit run app.py --browser.gatherUsageStats false --server.headless true >nul 2>&1
 
-:: Poczekaj az Streamlit sie uruchomi
 echo  Uruchamianie, prosze czekac...
 timeout /t 5 /nobreak >nul
 
-:: Otworz przegladarke automatycznie
 start "" "http://localhost:8501"
 
 echo.
 echo  ============================================
-echo   Program dziala!
+echo   Program gotowy!
 echo   Jesli przegladarka sie nie otworzyla,
 echo   wejdz recznie na: http://localhost:8501
 echo  ============================================
